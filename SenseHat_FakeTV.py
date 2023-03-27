@@ -84,22 +84,22 @@ while True:
     print('  Program running:', end='') # for console use to show program is running
 
     if TV == 1:  
-        LoopNoise = random.randint(3, 8)
-        print('  noise x ', LoopNoise, end='\r')
+        LoopNoise = random.randint(3, 9)
+        print('  noise x', LoopNoise, end='\r')
         for _ in range(LoopNoise):
           tv_noise()
           time.sleep(random.uniform(0.1, 5))
     
     elif TV == 2:
         LoopScene = random.randint(1, 2)
-        print('  scene x ', LoopScene, end='\r')
+        print('  scene x', LoopScene, end='\r')
         for _ in range(LoopScene):
           moving_scene()
           time.sleep(random.uniform(0.1, 5))
 
     elif TV == 3:
         LoopFlash = random.randint(1, 3)    
-        print('  flash x ', LoopFlash, end='\r')
+        print('  flash x', LoopFlash, end='\r')
         for _ in range(LoopFlash):
           flash_display()
           time.sleep(random.uniform(0.1, 5))
