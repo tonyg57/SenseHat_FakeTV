@@ -1,7 +1,11 @@
 # SenseHat_FakeTV -- with help from ChatGPT
-# 26-MAR-2023
+# Github: tonyg57 -- Last update: 26-MAR-2023
 # Test out at: https://trinket.io/sense-hat
+# (above doesn't like end='' type statements)
 #---------------------------------------------
+## used to comment out for Visual Studio Code
+#---------------------------------------------
+#
 from sense_hat import SenseHat
 import random
 import time
@@ -21,10 +25,11 @@ patterns = [
     [WHT, YEL, ORG, GRN, PUR, BLU, RED, BLK],
     [random.choice([BLK, RED, BLU, PUR, GRN, ORG, YEL, WHT]) for _ in range(8)]
 ]
-#print(patterns)
-print("\nFakeTV V3 running\n")
 
-# (8) random things to scroll
+#print(patterns)
+print() # line feed for console to separate colour sensor warning...
+
+# (8) random 'moving scenes' to scroll
 scenes = ['',\
          '.',\
          '#.',\
@@ -34,7 +39,7 @@ scenes = ['',\
          '...=== =|====|o|:..|.Xx..',\
          ' ._-=# - == - ### ==- _ ** _ = - .*.. @@@@@']
 
-# Define the TV noise effect function
+# TV noise effect
 def tv_noise():
     for i in range(8):
         for j in range(8):
@@ -43,7 +48,7 @@ def tv_noise():
             color = tuple(int(c * (level / 255.0)) for c in color)
             sense.set_pixel(j, i, color)
 
-# Scroll random stuff to emulate moving scenes
+# Moving scene effect
 def moving_scene():
     scrolltime = (random.randint(1, 8))/40
     randscene = random.randint(0, 7)
@@ -51,7 +56,7 @@ def moving_scene():
     message = scenes[randscene]
     for char in message:
         if char == ' ':
-            # black for spaces
+            # dark for spaces
             color = (64, 64, 64)
         else:
             # random color for non-spaces
@@ -60,6 +65,7 @@ def moving_scene():
         sense.set_rotation(random.randint(0, 3) * 90)
         sense.show_message(char, text_colour=color, scroll_speed=scrolltime)
 
+# Screen flash effect
 def flash_display():
     num_flashes = random.randint(1, 3)
     #print('Flashes:', num_flashes)
@@ -74,26 +80,26 @@ def flash_display():
 
 # Main loop
 while True:
-    TV = random.randint(1, 3)
-    #print('Function: ', end="")
-    
-    if TV == 1:
-        LoopNoise = random.randint(1, 6)
-        #print('tv_noise loops:', LoopNoise)
+    TV = random.randint(1, 3) # pick an effect at random
+    print('  Program running:', end='') # for console use to show program is running
+
+    if TV == 1:  
+        LoopNoise = random.randint(3, 8)
+        print('  noise x ', LoopNoise, end='\r')
         for _ in range(LoopNoise):
           tv_noise()
           time.sleep(random.uniform(0.1, 5))
     
     elif TV == 2:
         LoopScene = random.randint(1, 2)
-        #print('moving_scene loops:', LoopScene)
+        print('  scene x ', LoopScene, end='\r')
         for _ in range(LoopScene):
           moving_scene()
           time.sleep(random.uniform(0.1, 5))
 
     elif TV == 3:
-        LoopFlash = random.randint(1, 3)
-        #print('flash_display loops:', LoopFlash)
+        LoopFlash = random.randint(1, 3)    
+        print('  flash x ', LoopFlash, end='\r')
         for _ in range(LoopFlash):
           flash_display()
           time.sleep(random.uniform(0.1, 5))
