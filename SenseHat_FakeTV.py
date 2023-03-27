@@ -70,7 +70,7 @@ def flash_display():
       pixels = [(r, g, b) for i in range(64)]
       sense.set_pixels(pixels)
       time.sleep(random.uniform(0.1, 2))
-      sense.clear
+      sense.clear()
 
 # Main loop
 while True:
