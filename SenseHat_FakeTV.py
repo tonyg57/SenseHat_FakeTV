@@ -33,8 +33,6 @@ patterns = [
     [random.choice([BLK, RED, BLU, PUR, GRN, ORG, YEL, WHT]) for _ in range(8)]
 ]
 
-print('\nProgram running...\n')
-
 # (8) random 'moving scenes' to scroll
 scenes = [
     '',\
@@ -46,6 +44,19 @@ scenes = [
     '...== =|==|o|:.|.Xx..',\
     ' ._-=# -==-==. _ = -.@@.@@'
 ]
+
+# Assign effect probabilities - must add up to 1.00
+noise_prob = 0.33
+scene_prob = 0.17
+flash_prob = 0.17
+fader_prob = 0.33
+probabilities = noise_prob + scene_prob + flash_prob + fader_prob
+
+if probabilities != 1.00:
+    print('Probabilities = ', probabilities, ', fix effect probabilities to add up to 1.00')
+    exit()
+
+print('\nProgram running...\n')
 
 # TV noise effect
 def tv_noise():
@@ -75,15 +86,15 @@ def moving_scene():
 def flash_display():
     num_flashes = random.randint(1, 3)
     brightness = random.choice([True, False])
-    sense.low_light = brightness
+    sense.low_light = brightness   
     for i in range(num_flashes):
-      r = random.randint(16, 255)
-      g = random.randint(16, 255)
-      b = random.randint(16, 255)
-      pixels = [(r, g, b) for i in range(64)]
-      sense.set_pixels(pixels)
-      time.sleep(random.uniform(0.1, 2))
-      #sense.clear() # tends to look 'strobe-ish'
+        r = random.randint(16, 255)
+        g = random.randint(16, 255)
+        b = random.randint(16, 255)
+        pixels = [(r, g, b) for i in range(64)]
+        sense.set_pixels(pixels)
+        time.sleep(random.uniform(0.1, 2))
+        #sense.clear() # tends to look 'strobe-ish'
 
 # Fading Kaleidoscope effect
 # Kaleidoscope.py -- credit to: https://github.com/midijohnny/sensehat
@@ -123,37 +134,38 @@ def fade_and_random_pixel():
 # Main loop
 try:
     while True:
-        TV = random.randint(1, 4) # pick an effect at random
-    
-        if TV == 1:
-          LoopNoise = random.randint(3, 16)        
-          print('  Function: noise   ', end='\r')
-          for _ in range(LoopNoise):
-            tv_noise()
-            time.sleep(random.uniform(0.1, 5))
-        
-        elif TV == 2:
-          LoopScene = random.randint(1, 2)        
-          print('  Function: scene   ', end='\r')
-          for _ in range(LoopScene):
-            moving_scene()
-            time.sleep(random.uniform(0.1, 5))
-    
-        elif TV == 3:
-          LoopFlash = random.randint(1, 3)
-          print('  Function: flash   ', end='\r')       
-          for _ in range(LoopFlash):
-            flash_display()
-            time.sleep(random.uniform(0.1, 5))
-              
-        elif TV == 4:
-          LoopFader = random.randint(300, 900) #vs# use (3, 9)
-          print('  Function: fader   ', end='\r')      
-          for _ in range(LoopFader):
-            fade_and_random_pixel()
-            #no sleep delay required here except in VS
-            #time.sleep(random.uniform(0.1, 5))#vs# enable for VS
+        # pick a random effect at the defined statistical probabilities
+        TV_Screen = random.random() # (0 - 1)
+
+        if TV_Screen < noise_prob:
+            LoopNoise = random.randint(3, 16)        
+            print('  Function: noise   ', end='\r')
+            for _ in range(LoopNoise):
+                tv_noise()
+                time.sleep(random.uniform(0.1, 5))
+
+        elif TV_Screen < noise_prob + scene_prob:
+            LoopScene = random.randint(1, 2)        
+            print('  Function: scene   ', end='\r')
+            for _ in range(LoopScene):
+                moving_scene()
+                time.sleep(random.uniform(0.1, 5))
+
+        elif TV_Screen < noise_prob + scene_prob + flash_prob:
+            LoopFlash = random.randint(1, 3)
+            print('  Function: flash   ', end='\r')
+            for _ in range(LoopFlash):
+                flash_display()
+                time.sleep(random.uniform(0.1, 5))
+
+        else:
+            LoopFader = random.randint(300, 900) #vs# use (300, 900) for RPi, (3, 9) for VS
+            print('  Function: fader   ', end='\r')
+            for _ in range(LoopFader):
+                fade_and_random_pixel()
+                #no sleep delay required here except in VS
+                #vs#time.sleep(random.uniform(0.1, 5)) #vs# enable for VS
             
 except KeyboardInterrupt:
-    print('\nSenseHat_FakeTV terminated\n')
+    print('\n\nSenseHat_FakeTV terminated\n')
     
