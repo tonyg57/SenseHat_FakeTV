@@ -8,7 +8,7 @@ The program is designed to somewhat emulate the FakeTV hardware device as seen h
 I do place a faceted glass paperweight on top of the SenseHat to distribute the light.
 Running the Raspberry Pi a few feet from a window with the blinds down gives the appearance from outside of a TV left on (i.e. somebody's home).
 
-Feel free to tweak and optimize the code for your own use. Recommend using https://trinket.io/sense-hat to test your code.
+Feel free to tweak, optimize, and simplify the code for your own use. Recommend using https://trinket.io/sense-hat to test your code.
 Be advised that the trinket.io web site objects to the print statements that contain end='' and end='\r'. Just comment them out.
 The print statements are for the console so I can see what's going on and that the program is running correctly.
 
