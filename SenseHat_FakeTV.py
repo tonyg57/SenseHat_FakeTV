@@ -56,7 +56,9 @@ if probabilities != 1.00:
     print('Probabilities = ', probabilities, ', fix effect probabilities to add up to 1.00')
     exit()
 
-print('\nProgram running...\n')
+print('\nProgram running...')
+print('\nnoise:', noise_prob * 100, '%, scene:', scene_prob * 100,\
+      '%, flash:', flash_prob * 100, '%, fader:', fader_prob * 100, '%\n')
 
 # TV noise effect
 def tv_noise():
