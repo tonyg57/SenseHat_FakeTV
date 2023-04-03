@@ -46,10 +46,10 @@ scenes = [
 ]
 
 # Assign effect probabilities - must add up to 1.00
-noise_prob = 0.33
-scene_prob = 0.17
-flash_prob = 0.17
-fader_prob = 0.33
+noise_prob = 0.125
+scene_prob = 0.25
+flash_prob = 0.25
+fader_prob = 0.375
 probabilities = noise_prob + scene_prob + flash_prob + fader_prob
 
 if probabilities != 1.00:
@@ -169,5 +169,6 @@ try:
                 #vs#time.sleep(random.uniform(0.1, 5)) #vs# enable for VS
             
 except KeyboardInterrupt:
+    sense.clear() #vs#
     print('\n\nSenseHat_FakeTV terminated\n')
     
