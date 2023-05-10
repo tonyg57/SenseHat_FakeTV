@@ -1,5 +1,6 @@
-# SenseHat_FakeTV -- with help from ChatGPT
-# Github: tonyg57 -- Last update: 29-MAR-2023
+#!/usr/bin/python3
+# SenseHat_FakeTV (with timer) -- with help from ChatGPT
+# Github: tonyg57 -- Last update: 15-APR-2023
 # Test out at: https://trinket.io/sense-hat
 # (URL doesn't like end='' or end='\r' in print)
 # ...and yes, this code is overly convoluted.
@@ -11,8 +12,13 @@
 from sense_hat import SenseHat
 import random
 import time
+from datetime import datetime, time as time_obj
 
 sense = SenseHat()
+
+# Set the allowed time range
+start_time = time_obj(19, 0)  # 1900 hours
+end_time = time_obj(9, 0)  # 0900 hours
 
 # Define colors for TV noise (did experiment with darker colors)
 WHT = (255, 255, 255)
@@ -41,8 +47,8 @@ scenes = [
     '-_-*',\
     '.. $#$.$',\
     'FakeTVfortheRPi',\
-    '...== =|==|o|:.|.Xx..',\
-    ' ._-=# -==-==. _ = -.@@.@@'
+    '...---===#@#==--',\
+    '.:.::* @ :.:.:-.#'
 ]
 
 # Assign effect probabilities - must add up to 1.00
@@ -56,7 +62,7 @@ if probabilities != 1.00:
     print('Probabilities = ', probabilities, ', fix effect probabilities to add up to 1.00')
     exit()
 
-print('\nProgram running...')
+print('\nProgram running. Display on from', start_time, 'to', end_time)
 print('\nnoise:', noise_prob * 100, '%, scene:', scene_prob * 100,\
       '%, flash:', flash_prob * 100, '%, fader:', fader_prob * 100, '%\n')
 
@@ -71,7 +77,7 @@ def tv_noise():
 
 # Moving scene effect
 def moving_scene():
-    scrolltime = (random.randint(1, 8))/40
+    scrolltime = (random.randint(1, 6))/40 # '6' was '8'
     randscene = random.randint(0, 7)
     message = scenes[randscene]
     for char in message:
@@ -136,38 +142,45 @@ def fade_and_random_pixel():
 # Main loop
 try:
     while True:
-        # pick a random effect at the defined statistical probabilities
-        TV_Screen = random.random() # (0 - 1)
+        now = datetime.now().time()
+        if now > start_time or now < end_time:
+            # pick a random effect at the defined statistical probabilities
+            TV_Screen = random.random() # (0 - 1)
 
-        if TV_Screen < noise_prob:
-            LoopNoise = random.randint(3, 16)        
-            print('  Function: noise   ', end='\r')
-            for _ in range(LoopNoise):
-                tv_noise()
-                time.sleep(random.uniform(0.1, 5))
+            if TV_Screen < noise_prob:
+                LoopNoise = random.randint(3, 16)        
+                print('  Function: noise   ', end='\r')
+                for _ in range(LoopNoise):
+                    tv_noise()
+                    time.sleep(random.uniform(0.1, 5))
 
-        elif TV_Screen < noise_prob + scene_prob:
-            LoopScene = random.randint(1, 2)        
-            print('  Function: scene   ', end='\r')
-            for _ in range(LoopScene):
-                moving_scene()
-                time.sleep(random.uniform(0.1, 5))
+            elif TV_Screen < noise_prob + scene_prob:
+                LoopScene = random.randint(1, 2)        
+                print('  Function: scene   ', end='\r')
+                for _ in range(LoopScene):
+                    moving_scene()
+                    time.sleep(random.uniform(0.1, 5))
 
-        elif TV_Screen < noise_prob + scene_prob + flash_prob:
-            LoopFlash = random.randint(1, 3)
-            print('  Function: flash   ', end='\r')
-            for _ in range(LoopFlash):
-                flash_display()
-                time.sleep(random.uniform(0.1, 5))
+            elif TV_Screen < noise_prob + scene_prob + flash_prob:
+                LoopFlash = random.randint(1, 3)
+                print('  Function: flash   ', end='\r')
+                for _ in range(LoopFlash):
+                    flash_display()
+                    time.sleep(random.uniform(0.1, 5))
 
+            else:
+                LoopFader = random.randint(300, 900)
+                print('  Function: fader   ', end='\r')
+                for _ in range(LoopFader):
+                    fade_and_random_pixel()
+                    #no sleep delay required here except in VS
+                    #vs#time.sleep(random.uniform(0.1, 5)) #vs# enable for VS
         else:
-            LoopFader = random.randint(300, 900) #vs# use (300, 900) for RPi, (3, 9) for VS
-            print('  Function: fader   ', end='\r')
-            for _ in range(LoopFader):
-                fade_and_random_pixel()
-                #no sleep delay required here except in VS
-                #vs#time.sleep(random.uniform(0.1, 5)) #vs# enable for VS
-            
+            # Wait for 1 hour before checking the time again - no, let's do 15 minutes
+            print('  Function: sleep   ', end='\r')
+            sense.clear() #vs#
+            time.sleep(900)
+
 except KeyboardInterrupt:
     sense.clear() #vs#
     print('\n\nSenseHat_FakeTV terminated\n')
