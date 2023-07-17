@@ -3,7 +3,7 @@
 Simulate a TV left on in the room on a Raspberry Pi and Sense Hat.
 
 I came up with this program because I couldn't find anything like it that uses the SenseHat here on GitHub.
-The program is designed to somewhat emulate the FakeTV hardware device as seen here: https://faketv.com/
+The program is designed to simulate the FakeTV hardware device as seen here: https://faketv.com/
 
 I have a DIY prismatic acrylic cube on top of the SenseHat to diffuse the LED matrix.
 Running the Raspberry Pi a few feet from a window with the blinds down gives the appearance from outside of a TV left on (i.e. somebody's home).
