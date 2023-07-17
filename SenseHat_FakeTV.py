@@ -1,8 +1,6 @@
 #!/usr/bin/python3
-# SenseHat_FakeTV (with timer) -- with help from ChatGPT
-# Github: tonyg57 -- Last update: 15-APR-2023
-# Test out at: https://trinket.io/sense-hat
-# (URL doesn't like end='' or end='\r' in print)
+# SenseHat_FakeTV3 (with sunset/sunrise timer) -- with lots of help from ChatGPT
+# Last update: 07-JUL-2023
 # ...and yes, this code is overly convoluted.
 #-----------------------------------------------
 #vs# used to comment out 'sense' and some
@@ -13,12 +11,32 @@ from sense_hat import SenseHat
 import random
 import time
 from datetime import datetime, time as time_obj
+from astral.sun import sun
+from astral import LocationInfo
 
 sense = SenseHat()
 
-# Set the allowed time range
-start_time = time_obj(19, 0)  # 1900 hours
-end_time = time_obj(9, 0)  # 0900 hours
+# Get the latitude and longitude of your location
+latitude = 34
+longitude = -118
+
+# Function to calculate sunrise and sunset times
+def calculate_sunrise_sunset(latitude, longitude):
+    # Create a LocationInfo object with latitude, longitude, and timezone
+    location = LocationInfo()
+    location.latitude = latitude
+    location.longitude = longitude
+    location.timezone = 'America/Los_Angeles'
+
+    # Get the current local time
+    current_time = datetime.now()
+
+    # Calculate sunrise and sunset times using astral library
+    s = sun(location.observer, date=current_time.date(), tzinfo=location.timezone)
+    sunrise = time_obj(s['sunrise'].hour, s['sunrise'].minute)
+    sunset = time_obj(s['sunset'].hour, s['sunset'].minute)
+
+    return sunrise, sunset
 
 # Define colors for TV noise (did experiment with darker colors)
 WHT = (255, 255, 255)
@@ -62,7 +80,9 @@ if probabilities != 1.00:
     print('Probabilities = ', probabilities, ', fix effect probabilities to add up to 1.00')
     exit()
 
-print('\nProgram running. Display on from', start_time, 'to', end_time)
+sunrise, sunset = calculate_sunrise_sunset(latitude, longitude)
+
+print('\nProgram running. Display on from sunset to sunrise.')
 print('\nnoise:', noise_prob * 100, '%, scene:', scene_prob * 100,\
       '%, flash:', flash_prob * 100, '%, fader:', fader_prob * 100, '%\n')
 
@@ -142,44 +162,47 @@ def fade_and_random_pixel():
 # Main loop
 try:
     while True:
+        # Calculate the current sunrise and sunset times
+        sunrise, sunset = calculate_sunrise_sunset(latitude, longitude)
+
         now = datetime.now().time()
-        if now > start_time or now < end_time:
+        if now > sunset or now < sunrise:
             # pick a random effect at the defined statistical probabilities
             TV_Screen = random.random() # (0 - 1)
 
             if TV_Screen < noise_prob:
                 LoopNoise = random.randint(3, 16)        
-                print('  Function: noise   ', end='\r')
+                print(' ', sunset, 'to', sunrise, '  Function: noise   ', end='\r')
                 for _ in range(LoopNoise):
                     tv_noise()
                     time.sleep(random.uniform(0.1, 5))
 
             elif TV_Screen < noise_prob + scene_prob:
                 LoopScene = random.randint(1, 2)        
-                print('  Function: scene   ', end='\r')
+                print(' ', sunset, 'to', sunrise, '  Function: scene   ', end='\r')
                 for _ in range(LoopScene):
                     moving_scene()
                     time.sleep(random.uniform(0.1, 5))
 
             elif TV_Screen < noise_prob + scene_prob + flash_prob:
                 LoopFlash = random.randint(1, 3)
-                print('  Function: flash   ', end='\r')
+                print(' ', sunset, 'to', sunrise, '  Function: flash   ', end='\r')
                 for _ in range(LoopFlash):
                     flash_display()
                     time.sleep(random.uniform(0.1, 5))
 
             else:
                 LoopFader = random.randint(300, 900)
-                print('  Function: fader   ', end='\r')
+                print(' ', sunset, 'to', sunrise, '  Function: fader   ', end='\r')
                 for _ in range(LoopFader):
                     fade_and_random_pixel()
                     #no sleep delay required here except in VS
                     #vs#time.sleep(random.uniform(0.1, 5)) #vs# enable for VS
         else:
-            # Wait for 1 hour before checking the time again - no, let's do 15 minutes
-            print('  Function: sleep   ', end='\r')
+            # Wait before checking the time again
+            print(' ', sunrise, 'to', sunset, '  Function: sleep   ', end='\r')
             sense.clear() #vs#
-            time.sleep(900)
+            time.sleep(600) # 10 minutes
 
 except KeyboardInterrupt:
     sense.clear() #vs#
