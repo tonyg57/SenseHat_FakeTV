@@ -1,6 +1,7 @@
 # SenseHat_FakeTV.py
 
-Simulate a TV left on in the room on a Raspberry Pi and Sense Hat.
+Simulate a TV left on in the room on a Raspberry Pi and Sense Hat. Look for the lines where you need to enter your Lat/Lon & Time Zone.
+Program will run from sunset to sunrise.
 
 I came up with this program because I couldn't find anything like it that uses the SenseHat here on GitHub.
 The program is designed to simulate the FakeTV hardware device as seen here: https://faketv.com/
